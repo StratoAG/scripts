@@ -34,11 +34,14 @@
 #                         Strip more terminal control codes.
 #    V0.25, 26 Jan 2019
 #      http://github.com/pixelb/scripts/commits/master/scripts/ansi2html.sh
+#
+#    v0.26, 26 Sep 2019, adler@strato.de
+#                         Workaround for Outlook ignoring the class in the <body> tag
 
 gawk --version >/dev/null || exit 1
 
 if [ "$1" = "--version" ]; then
-    printf '0.25\n' && exit
+    printf '0.26\n' && exit
 fi
 
 usage()
@@ -164,7 +167,7 @@ done
 
 [ "$body_only" ] || printf '%s' '
 .f9 { color: '`[ "$dark_bg" ] && printf "#$P7;" || printf "#$P0;"`' }
-.b9 { background-color: #'`[ "$dark_bg" ] && printf $P0 || printf $P15`'; }
+.b9 { background-color: #'`[ "$dark_bg" ] && printf $P0 || printf $P15`'; } 
 .f9 > .bold,.bold > .f9, body.f9 > pre > .bold {
   /* Bold is heavy black on white, or bright white
      depending on the default background */
@@ -190,13 +193,14 @@ span { display: inline-block; }
 'To use the css generated from --css-only, do: '\
 '<head><link rel="stylesheet" type="text/css" href="style.css"></head>' >&2
 [ "$css_only" ] && exit
+
 [ "$body_only" ] || printf '%s' '</style>
 </head>
-
-<body class="f9 b9">
+<body class="f9 b9" style="background:#'`[ "$dark_bg" ] && printf "$P0;" || printf "$P15;"`'">
 <pre>
 '
-[ "$body_only" ] && printf '%s\n' 'Be sure to use <body class="f9 b9"> and <pre>' >&2
+[ "$body_only" ] && printf '%s\n' 'Be sure to use <body class="f9 b9" '\
+'style="background:#'`[ "$dark_bg" ] && printf "$P0;" || printf "$P15;"`'"> and <pre>' >&2
 
 p='\x1b\['        #shortcut to match escape codes
 
